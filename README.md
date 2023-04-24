@@ -1,14 +1,17 @@
 # Get Latest Version
 
 ## Linux
+
 api(dot)getfiddler(dot)com/linux/latest-linux
 
 ## Windows
+
 api(dot)getfiddler(dot)com/win/latest
 
 ## NOTICE
 
-If you are using windows, just try https://github.com/dnSpyEx/dnSpy
+If you are using windows, just try <https://github.com/dnSpyEx/dnSpy>
+
 ## get ilasm (ildasm)
 
 1. dotnet new console -n test
@@ -20,9 +23,9 @@ If you are using windows, just try https://github.com/dnSpyEx/dnSpy
 
 ## main.xxxx.js
 
-打开 `fiddler/resources/app/out/WebServer/ClientApp/dist/main.xxx.js` 搜索 `updateUserLicense` 
+Open the `Fiddler/Resources/APP/OUT/Webserver/ClientApp/Dist/Main.xxx.js`
 
-函数开始处添加：（请将 `Ie` 替换为参数名称）
+ Add at the beginning of the function: (please replace the `IE` to the parameter name)
 
 ```javascript
 Ie.licenseInfo.currentLicense = "Enterprise"
@@ -33,11 +36,12 @@ Ie.licenseInfo.hasValidLicense = true
 
 ## Fiddler.WebUi.il
 
-> 修改此文件去除文件校验
+> Modify this file to remove file verification
 
-对两个函数 `TryOpenClientMainScript` 与 `TryOpenElectronMainScript` 做相同操作
+ Two functions `TryopenClientMainScript` and`TryopeneletronMainscript`
 
-删除函数内以下代码之前的所有代码
+ Delete all code before the following code
+
 ```
 IL_0208:  /* 17   |                  */ ldc.i4.1
 IL_0209:  /* 2A   |                  */ ret
@@ -47,44 +51,47 @@ IL_0209:  /* 2A   |                  */ ret
 
 ### method FiddlerBackendSDK.User.UserClient::GetBestAccount
 
-删除 IL_000d - IL_0020 对应 if 语句
-删除 IL_003f - IL_0040 对应 `return null;` 语句
+Delete IL_000D -IL_0020 corresponding if statement
+ Delete IL_003F -IL_0040 corresponding `Return Null;
 
 ### method '<>c__DisplayClass18_0'::'<GetBestAccount>b__0'
 
-删除 IL_0000 - IL_0019 , 在 IL_001e 前插入 `ldc.i4.1`  (即函数体直接返回 `true` )
+Delete IL_0000 -IL_0019, insert `ldc.i4.1` before IL_001e (that is, the function body returns directly`true`)
 
 from
+
 ```c#
 public AccountDTO GetBestAccount(UserWithBestAccountDTO user)
 {
-	if (user.BestEverywhereAccountId != null)
-	{
-		return user.Accounts.FirstOrDefault((UserAccountDTO x) => x.Id == user.BestEverywhereAccountId.Value);
-	}
-	return null;
+ if (user.BestEverywhereAccountId != null)
+ {
+  return user.Accounts.FirstOrDefault((UserAccountDTO x) => x.Id == user.BestEverywhereAccountId.Value);
+ }
+ return null;
 }
 ```
+
 to
+
 ```c#
 public AccountDTO GetBestAccount(UserWithBestAccountDTO user)
 {
-	return user.Accounts.FirstOrDefault((UserAccountDTO x) => true);
+ return user.Accounts.FirstOrDefault((UserAccountDTO x) => true);
 }
 ```
 
-## 禁用更新
+## Disable update
 
-修改 `fiddler/resources/app/out/main.js`，搜索 `e.settingsService.get().autoUpdateSettings.disabled` 替换为 `true||e.settingsService.get().autoUpdateSettings.disabled`
+ Modify the `Fiddler/Resources/APP/OUT/main.js`, search`E.SettingsService.get (). AutopdateSettings.disabled` d`
 
 ## Some Detail
 
 [Let me see](./DETAIL.MD)
-	
-## 免责声明
-	
-本仓库仅供技术学习交流使用，如有下载相关文件，请在学习后24小时内删除相关内容。
+ 
+## Exempt statement
 
-请勿将本项目内容用于非法用途，使用者在使用时即视为对行为可能产生的任何不良后果负责。
-	
-由于传播、利用此工具所提供的信息而造成的任何直接或者间接的后果及损失，均由使用者本人负责，作者不为此承担任何责任。
+ This warehouse is used only for technical learning and communication. If there is a related document, please delete the relevant content within 24 hours after learning.
+
+ Do not use the content of this project for illegal purposes. Users are responsible for any adverse consequences that may produce any adverse consequences when used.
+
+ Any direct or indirect consequences and losses caused by the information provided by this tool is responsible for the user himself, and the author shall not bear any responsibility for this.

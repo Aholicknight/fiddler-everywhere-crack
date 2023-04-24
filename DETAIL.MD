@@ -1,105 +1,103 @@
-# 前言
+# 前
 
-软件都知道，不做解释；
+ The software knows, does not explain;
 
-笔者使用的是 Linux 操作系统，因而 dnspy, reflexil 等工具无法使用（也可能我没找到相关可视化工具），
+ The author uses the Linux operating system, so tools such as DNSPY, Reflexil cannot be used (maybe I did not find related visualization tools),
 
-故采用 AvaloniaILSpy + ilasm / ildasm 进行处理；
+ Therefore, it is treated with Avaloniailspy + ILasm / ILDASM;
 
-classic 版本也不支持 Linux，故有此修改。
+ The Classic version does not support Linux, so this modification is made.
 
-# 预处理
+# Pre -processing
 
-准备好 `ildasm` 与 `ilasm`
+ Prepare `iLDASM` and`iLasm`
 
-使用 `ildasm` 将 `Fiddler.WebUi.dll` 转换为 il 文件
+ Use `iLDASM`
 
-使用 `ildasm` 将 `FiddlerBackendSDK.dll` 转换为 il 文件
+ Use `iLDASM`
 
-## Linux 获取 ilasm (ildasm)
+## Linux Get ILasm (ILDASM)
 
-1. 安装好 dotnet，打开一个空文件夹并执行后续命令
-2. dotnet new console -n test
-3. cd test
-4. dotnet add package Microsoft.NETCore.ILAsm (ILDAsm)
-5. dotnet publish -c Release --self-contained --runtime linux-x64
-6. export PATH=$(pwd)/bin/Release/netcoreapp3.1/linux-x64/publish:$PATH
-7. ilasm (ildasm)
+ 1. Install the dotnet, open a empty folder and execute the follow -up command
+ 2. Dotnet New Console -n test
+ 3. CD test
+ 4. Dotnet Add Package Microsoft.netcore.ilasm (ILDASM)
+ 5. Dotnet Publish -C Release-Self-Contained-Runtime Linux-X64
+ 6. Export Path = $ (pwd) /bin/release/netcoreapp3.1/linux-x64/publish: $path
+ 7. iLasm (ILDASM)
 
-# 处理
+# deal with
 
 ## main.xxxx.js
 
-> 为何在此进行修改？
-> 
-> 这是使用控制台进行调试操作探索出来的。
+ > Why do you modify it here?
+ "
+ > This is used to explore the use of the console for debugging operations.
 
+ Open the `Fiddler/Resources/APP/OUT/Webserver/ClientApp/Dist/Main.xxx.js`
 
-打开 `fiddler/resources/app/out/WebServer/ClientApp/dist/main.xxx.js` 搜索 `updateUserLicense` 
+ Add at the beginning of the function: (please replace the `IE` to the parameter name)
 
-函数开始处添加：（请将 `Ie` 替换为参数名称）
+ `` `javascript
+ Ie.licenseinfo.CurrenTlicense = "Pro"
+ Ie.licenseinfo.hasexpiredtric = false
+ Ie.licenseinfo.istrieLalavalect = false
+ Ie.licenseinfo.hasValidLicense = TRUE
+`` `
 
-```javascript
-Ie.licenseInfo.currentLicense = "Pro"
-Ie.licenseInfo.hasExpiredTrial = false
-Ie.licenseInfo.isTrialAvailable = false
-Ie.licenseInfo.hasValidLicense = true
-```
+ ! [UpdateUserLicense] (pic/main.xxx.js-1.png)
 
-![updateUserLicense](pic/main.xxx.js-1.png)
+## fiddler.webui.il
 
-## Fiddler.WebUi.il
+ > How do you know to modify this file?
+ "
+ > When modifying the `main.js` to try to call out the console, the program cannot be started, and the key code is found through the program prompt
 
-> 如何知道修改此文件？
-> 
-> 当修改 `main.js` 尝试调出控制台时，程序是不能启动的，通过程序提示找到关键代码
+ > Modify this file to remove the file verification,
+ "
+ > At the beginning of version 3.3.0, the verification process was also added. Before that, the modification of this DLL file was optional.
+ "
+ > After removing the verification of the `TryopeneletronMainMainscript`, you can modify the` app/out/main.js to call out the console
 
-> 修改此文件去除文件校验，
-> 
-> 在 3.3.0 版本开始 `main.xxx.js` 也被加入校验流程，在此之前此dll文件的修改是可选的。
-> 
-> 去除 `TryOpenElectronMainScript` 的校验之后，可以修改 `app/out/main.js` 调出控制台
+ Do the same operation for the two functions `TryopenClientMainScript` and`TryopeneletronMainscript`:
 
-对两个函数 `TryOpenClientMainScript` 与 `TryOpenElectronMainScript` 做相同操作：
+ Modify the contents of the function body to return directly `true`
 
-将函数体内容修改为 直接返回 `true`
+ Delete all code before the following code (the following code means `Return True;`)
 
-删除函数内以下代码之前的所有代码（以下代码含义为 `return true;`）
+ `` `
+ IL_0208: / * 17 | * / LDC.I4.1
+ IL_0209: / * 2A | * / RET
+`` `
 
-```
-IL_0208:  /* 17   |                  */ ldc.i4.1
-IL_0209:  /* 2A   |                  */ ret
-```
+ !
 
-![TryOpenElectronMainScript](pic/dll-TryOpenElectronMainScript-1.png)
+ This effect is probably after deleting:
 
-删除后大概这个效果：
+ !
 
-![TryOpenElectronMainScript](pic/dll-TryOpenElectronMainScript-2.png)
+## fiddlerbackendsdk.il
 
-## FiddlerBackendSDK.il
+ > How do you know to modify this file?
+ "
+ > This is the data captured by replacing the verification server, and the operation is a bit troublesome;
+ "
+ > However, if you make a more detailed recovery of the verification server, it should be offline.
 
-> 如何知道修改此文件？
-> 
-> 这是通过替换验证服务器抓到的数据，操作有点麻烦；
-> 
-> 不过，如果对验证服务器做较为详尽的复现，应该能实现离线化。
+### METHOD FIDDLERBACKENDSDK.USER.USERCLIENT :: getbestaccount
 
+ Search `userclient :: getbestaccount`
 
-### method FiddlerBackendSDK.User.UserClient::GetBestAccount
+ Delete IL_000D -IL_0020 corresponding if statement
 
-搜索 `UserClient::GetBestAccount`
+ Delete IL_003F -IL_0040 corresponding `Return Null;
 
-删除 IL_000d - IL_0020 对应 if 语句
+ ! [Getbestaccount]
 
-删除 IL_003f - IL_0040 对应 `return null;` 语句
+### METHOD '<> C__DISPLAYCLASS18_0' :: <<Getbestaccount> B__0 '
 
-![GetBestAccount](pic/dll-GetBestAccount-1.png)
+ Search `<Getbestaccount> B__0`
 
-### method '<>c__DisplayClass18_0'::'<GetBestAccount>b__0'
+ Delete IL_0000 -IL_0019, insert `ldc.i4.1` before IL_001e (that is, the function body returns directly`true`)
 
-搜索 `<GetBestAccount>b__0`
-
-删除 IL_0000 - IL_0019 , 在 IL_001e 前插入 `ldc.i4.1`  (即函数体直接返回 `true` )
-
-![GetBestAccount](pic/dll-GetBestAccount-2.png)
+ ! [Getbestaccount] (PIC/DLL-Getbestaccount-2.png)
